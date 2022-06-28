@@ -1,0 +1,10 @@
+body {
+    font-family: "Raleway", sans-serif;
+    --darkgrey: grey;
+    --greenyellow: #71db5c;
+    --greenyellowgradient: #71db5caa;
+    --white: #ffffff;
+    --greenblue: #00c7b1;
+    --greenbluegradient: #00c7b0be;
+    
+}
