@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Linear Mixed Models (LMMs) &#8212; vitarenal-DS  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Mixed Effects Random Forests (MERF)" href="vitarenal_synthetic_MERF.html" />
+    <link rel="prev" title="Welcome to Vitarenal-DS’s Notebooks" href="index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          Vitarenal-DS</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption" role="heading"><span class="caption-text">Example Notebooks</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Linear Mixed Models (LMMs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vitarenal_synthetic_MERF.html">Mixed Effects Random Forests (MERF)</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Linear Mixed Models (LMMs)</a><ul>
+<li><a class="reference internal" href="#Running-linear-mixed-models-to-investigate-the-relationship-between-a-predictor-and-a-target-over-time-using-synthetic-data-intended-to-mimic-the-vitarenal-data">Running linear mixed models to investigate the relationship between a predictor and a target over time using synthetic data intended to mimic the vitarenal data</a><ul>
+<li><a class="reference internal" href="#Specify-the-predictor-list">Specify the predictor list</a></li>
+<li><a class="reference internal" href="#Specify-the-model-with-the-formula_string-as-the-model-syntax">Specify the model with the formula_string as the model syntax</a></li>
+<li><a class="reference internal" href="#Fit-the-model">Fit the model</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Linear-Mixed-Models-(LMMs)">
+<h1>Linear Mixed Models (LMMs)<a class="headerlink" href="#Linear-Mixed-Models-(LMMs)" title="Permalink to this heading">¶</a></h1>
+<section id="Running-linear-mixed-models-to-investigate-the-relationship-between-a-predictor-and-a-target-over-time-using-synthetic-data-intended-to-mimic-the-vitarenal-data">
+<h2>Running linear mixed models to investigate the relationship between a predictor and a target over time using synthetic data intended to mimic the vitarenal data<a class="headerlink" href="#Running-linear-mixed-models-to-investigate-the-relationship-between-a-predictor-and-a-target-over-time-using-synthetic-data-intended-to-mimic-the-vitarenal-data" title="Permalink to this heading">¶</a></h2>
+<p>Power calculation (based on repeated measures ANOVA, N=24, 4 time levels, and 2 equal sized groups, with 80% power and 5% alpha) shows that effects at the higher boundary of small effect sizes and the lower boundary of medium sized effects of Cohen’s d=.50-.55 (ƞ2=.07) can be reliably detected. This calculation allows for the planned linear mixed-model within-between interaction analyses, described at par. 8.3. For the analyses of main effects on the main endpoint/primary outcome (decrease over
+time on both cognitive biases within whole sample) the power with a N=24 sample size is considerably larger. Previous studies from our team among healthy volunteers with fatigue complaints showed similar effect sizes after less intensive single-session CBM (Pieterse &amp; Bode, 2018). As LMM analyses can account for missing values effectively, partial missingness of datapoints is allowed and does not necessarily affect this power calculation.</p>
+<ul class="simple">
+<li><p>N = 24,</p></li>
+<li><p>Repeated measures = 4</p></li>
+<li><p>Groups = 2</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>2 * 4 * 24
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+192
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from pymer4 import Lmer, simulate_lmm
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from utils import diagnostic_plots
+import session_info
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>session_info.show(write_req_file=False)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<details>
+<summary>Click to view session information</summary>
+<pre>
+-----
+matplotlib          3.5.1
+numpy               1.22.3
+pandas              1.1.5
+pymer4              0.7.8
+seaborn             0.11.2
+session_info        1.0.0
+utils               NA
+-----
+</pre>
+<details>
+<summary>Click to view modules imported as dependencies</summary>
+<pre>
+PIL                         9.0.1
+asttokens                   NA
+backcall                    0.2.0
+beta_ufunc                  NA
+binom_ufunc                 NA
+cffi                        1.15.0
+cycler                      0.10.0
+cython_runtime              NA
+dateutil                    2.8.2
+debugpy                     1.5.1
+decorator                   5.1.1
+deepdish                    0.3.7
+defusedxml                  0.7.1
+entrypoints                 0.4
+executing                   0.8.3
+ipykernel                   6.9.1
+ipython_genutils            0.2.0
+jedi                        0.18.1
+jinja2                      3.0.3
+joblib                      1.1.0
+jupyter_server              1.13.5
+kiwisolver                  1.4.2
+markupsafe                  2.0.1
+matplotlib_inline           NA
+mkl                         2.4.0
+mpl_toolkits                NA
+nbinom_ufunc                NA
+numexpr                     2.8.1
+packaging                   21.3
+parso                       0.8.3
+patsy                       0.5.2
+pexpect                     4.8.0
+pickleshare                 0.7.5
+pkg_resources               NA
+prompt_toolkit              3.0.20
+ptyprocess                  0.7.0
+pure_eval                   0.2.2
+pydev_ipython               NA
+pydevconsole                NA
+pydevd                      2.6.0
+pydevd_concurrency_analyser NA
+pydevd_file_utils           NA
+pydevd_plugins              NA
+pydevd_tracing              NA
+pygments                    2.11.2
+pyparsing                   3.0.4
+pytz                        2021.3
+rpy2                        3.4.5
+scipy                       1.7.3
+setuptools                  61.2.0
+six                         1.16.0
+stack_data                  0.2.0
+statsmodels                 0.13.2
+tables                      3.6.1
+tornado                     6.1
+traitlets                   5.1.1
+typing_extensions           NA
+tzlocal                     NA
+wcwidth                     0.2.5
+zmq                         22.3.0
+</pre>
+</details> <!-- seems like this ends pre, so might as well be explicit -->
+<pre>
+-----
+IPython             8.3.0
+jupyter_client      7.2.2
+jupyter_core        4.10.0
+jupyterlab          3.3.2
+notebook            6.4.11
+-----
+Python 3.9.12 (main, Jun  1 2022, 11:38:51) [GCC 7.5.0]
+Linux-5.4.0-1080-aws-x86_64-with-glibc2.27
+-----
+Session information updated at 2022-06-28 13:57
+</pre>
+</details></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>if &quot;jms_style_sheet&quot; in plt.style.available:
+    plt.style.use(&quot;jms_style_sheet&quot;)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>number_observations = 4 # amount of observations per group (i.e. user_id)
+number_predictors = 5
+number_groups = 30 # amount of groups (i.e. user_id)
+
+df, blups, coefficient = simulate_lmm(num_obs=number_observations,
+    num_coef=number_predictors,
+    num_grps=number_groups,
+    coef_vals=None,
+    corrs=None,
+    grp_sigmas=0.25,
+    mus=0.0,
+    sigmas=1.0,
+    noise_params=(0, 2),
+    family=&#39;gaussian&#39;,
+    seed=69420)
+
+df = (df.assign(m00_name= lambda x: np.tile([&quot;m00&quot;, &quot;m03&quot;, &quot;m06&quot;, &quot;m09&quot;], number_groups))
+      .assign(diagnosis = np.repeat([0, 1], int(df.shape[0]/2)))
+      .rename(columns={&quot;Group&quot;: &quot;user_id&quot;}, inplace=False)
+      .assign(user_id=lambda x: x[&quot;user_id&quot;].astype(int))
+      )
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>display(df.head()), df.shape
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>DV</th>
+      <th>IV1</th>
+      <th>IV2</th>
+      <th>IV3</th>
+      <th>IV4</th>
+      <th>IV5</th>
+      <th>user_id</th>
+      <th>m00_name</th>
+      <th>diagnosis</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.310004</td>
+      <td>1.282629</td>
+      <td>0.041641</td>
+      <td>0.026445</td>
+      <td>1.112682</td>
+      <td>-1.396378</td>
+      <td>1</td>
+      <td>m00</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.348110</td>
+      <td>-0.384780</td>
+      <td>0.663529</td>
+      <td>-1.125871</td>
+      <td>0.127171</td>
+      <td>0.029313</td>
+      <td>1</td>
+      <td>m03</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>-0.901572</td>
+      <td>-0.012763</td>
+      <td>0.031757</td>
+      <td>0.363677</td>
+      <td>-1.443745</td>
+      <td>-1.150963</td>
+      <td>1</td>
+      <td>m06</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.684844</td>
+      <td>-0.719206</td>
+      <td>0.488108</td>
+      <td>1.113077</td>
+      <td>-0.524331</td>
+      <td>0.438103</td>
+      <td>1</td>
+      <td>m09</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.840559</td>
+      <td>0.621639</td>
+      <td>-1.237202</td>
+      <td>0.283866</td>
+      <td>1.043195</td>
+      <td>-0.263725</td>
+      <td>2</td>
+      <td>m00</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(None, (120, 9))
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_ = sns.lmplot(data=df, x=&quot;DV&quot;, y=&quot;IV1&quot;, hue=&quot;diagnosis&quot;, height=7, aspect=2)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/vitarenal_synthetic_Lmer_10_0.png" src="_images/vitarenal_synthetic_Lmer_10_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_ = plt.figure(figsize=(20, 7))
+_ = sns.lineplot(data=df.assign(user_id=lambda x: x[&quot;user_id&quot;].astype(&quot;category&quot;)), x=&quot;DV&quot;, y=&quot;IV1&quot;, hue=&quot;user_id&quot;)
+_ = sns.scatterplot(data=df.assign(user_id=lambda x: x[&quot;user_id&quot;].astype(&quot;category&quot;)), x=&quot;DV&quot;, y=&quot;IV1&quot;, hue=&quot;user_id&quot;, legend=False)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/vitarenal_synthetic_Lmer_11_0.png" src="_images/vitarenal_synthetic_Lmer_11_0.png" />
+</div>
+</div>
+<section id="Specify-the-predictor-list">
+<h3>Specify the predictor list<a class="headerlink" href="#Specify-the-predictor-list" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>predictor_list = df.filter(regex=&quot;IV&quot;).columns.tolist()
+
+# df[predictor_list] = df[predictor_list].mask(np.random.random(df[predictor_list].shape) &lt; .025)
+
+dataLMM = df.dropna()
+dataLMM.shape
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(120, 9)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>feature_collection = &quot; + &quot;.join(predictor_list[-2:4])
+feature_collection
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#39;IV4&#39;
+</pre></div></div>
+</div>
+</section>
+<section id="Specify-the-model-with-the-formula_string-as-the-model-syntax">
+<h3>Specify the model with the formula_string as the model syntax<a class="headerlink" href="#Specify-the-model-with-the-formula_string-as-the-model-syntax" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>target_name = &quot;DV&quot;
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># formula_string = f&quot;{target_name} ~ {feature_collection} + (1 + m00_name|user_id) + (1|diagnosis)&quot;
+formula_string = f&quot;{target_name} ~ {feature_collection} + (1|user_id) + (1|m00_name) + (1|diagnosis)&quot;
+# formula_string = f&quot;{target_name} ~ {feature_collection} + (1|diagnosis)&quot;
+print(formula_string)
+
+model = Lmer(data=dataLMM, formula=formula_string)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+DV ~ IV4 + (1|user_id) + (1|m00_name) + (1|diagnosis)
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># dataLMM.info()
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Fit-the-model">
+<h3>Fit the model<a class="headerlink" href="#Fit-the-model" title="Permalink to this heading">¶</a></h3>
+<p>Here you can specify factor levels of categorical features, and what approach you want used for confidence intervals of the coefficients</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># fixed_effect_output = model.fit(no_warnings=True, conf_int=&#39;profile&#39;) #model where the m00_name is not considered an ordered categorical feature
+fixed_effect_output = model.fit(factors = {&quot;m00_name&quot;: dataLMM[&quot;m00_name&quot;].unique().tolist()},
+                                ordered=True, no_warnings=True, conf_int=&#39;profile&#39;)
+
+fixed_effect_output
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Formula: DV~IV4+(1|user_id)+(1|m00_name)+(1|diagnosis)
+
+Family: gaussian         Inference: parametric
+
+Number of observations: 120      Groups: {&#39;user_id&#39;: 30.0, &#39;m00_name&#39;: 4.0, &#39;diagnosis&#39;: 2.0}
+
+Log-likelihood: -270.541         AIC: 541.081
+
+Random effects:
+
+                  Name    Var    Std
+user_id    (Intercept)  0.000  0.000
+m00_name   (Intercept)  0.000  0.000
+diagnosis  (Intercept)  0.000  0.000
+Residual                5.295  2.301
+
+No random effect correlations specified
+
+Fixed effects:
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Estimate</th>
+      <th>2.5_ci</th>
+      <th>97.5_ci</th>
+      <th>SE</th>
+      <th>DF</th>
+      <th>T-stat</th>
+      <th>P-val</th>
+      <th>Sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>(Intercept)</th>
+      <td>0.305</td>
+      <td>-0.168</td>
+      <td>0.778</td>
+      <td>0.211</td>
+      <td>118.0</td>
+      <td>1.446</td>
+      <td>0.151</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>IV4</th>
+      <td>0.720</td>
+      <td>0.298</td>
+      <td>1.141</td>
+      <td>0.215</td>
+      <td>118.0</td>
+      <td>3.346</td>
+      <td>0.001</td>
+      <td>**</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig, axs = diagnostic_plots(model_fit=model,
+                                         X=None,
+                                         y=None,
+                                         figsize = (8,8),
+                                         limit_cooks_plot = False,
+                                         subplot_adjust_args={&quot;wspace&quot;: 0.3, &quot;hspace&quot;: 0.3}
+                                        )
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/vitarenal_synthetic_Lmer_21_0.png" src="_images/vitarenal_synthetic_Lmer_21_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+<div id="sourcelink">
+  <a href="_sources/vitarenal_synthetic_Lmer.nblink.txt"
+     rel="nofollow">Source</a>
+</div>
+      
+    </p>
+    <p>
+        &copy; Copyright 2022, James Twose.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

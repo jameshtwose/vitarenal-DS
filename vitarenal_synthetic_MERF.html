@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Mixed Effects Random Forests (MERF) &#8212; vitarenal-DS  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Linear Mixed Models (LMMs)" href="vitarenal_synthetic_Lmer.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          Vitarenal-DS</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption" role="heading"><span class="caption-text">Example Notebooks</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="vitarenal_synthetic_Lmer.html">Linear Mixed Models (LMMs)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Mixed Effects Random Forests (MERF)</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Mixed Effects Random Forests (MERF)</a><ul>
+<li><a class="reference internal" href="#Running-mixed-effects-random-forests-(MERF)-to-investigate-the-relationship-between-a-predictor-and-a-target-over-time-using-synthetic-data-intended-to-mimic-the-vitarenal-data">Running mixed effects random forests (MERF) to investigate the relationship between a predictor and a target over time using synthetic data intended to mimic the vitarenal data</a><ul>
+<li><a class="reference internal" href="#Specify-the-predictor-list,-target-and-group">Specify the predictor list, target and group</a><ul>
+<li><a class="reference internal" href="#Create-train_test-and-hold-out-users">Create train_test and hold out users</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Hold-out-set">Hold out set</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Mixed-Effects-Random-Forests-(MERF)">
+<h1>Mixed Effects Random Forests (MERF)<a class="headerlink" href="#Mixed-Effects-Random-Forests-(MERF)" title="Permalink to this heading">¶</a></h1>
+<section id="Running-mixed-effects-random-forests-(MERF)-to-investigate-the-relationship-between-a-predictor-and-a-target-over-time-using-synthetic-data-intended-to-mimic-the-vitarenal-data">
+<h2>Running mixed effects random forests (MERF) to investigate the relationship between a predictor and a target over time using synthetic data intended to mimic the vitarenal data<a class="headerlink" href="#Running-mixed-effects-random-forests-(MERF)-to-investigate-the-relationship-between-a-predictor-and-a-target-over-time-using-synthetic-data-intended-to-mimic-the-vitarenal-data" title="Permalink to this heading">¶</a></h2>
+<p>Power calculation (based on repeated measures ANOVA, N=24, 4 time levels, and 2 equal sized groups, with 80% power and 5% alpha) shows that effects at the higher boundary of small effect sizes and the lower boundary of medium sized effects of Cohen’s d=.50-.55 (ƞ2=.07) can be reliably detected. This calculation allows for the planned linear mixed-model within-between interaction analyses, described at par. 8.3. For the analyses of main effects on the main endpoint/primary outcome (decrease over
+time on both cognitive biases within whole sample) the power with a N=24 sample size is considerably larger. Previous studies from our team among healthy volunteers with fatigue complaints showed similar effect sizes after less intensive single-session CBM (Pieterse &amp; Bode, 2018). As LMM analyses can account for missing values effectively, partial missingness of datapoints is allowed and does not necessarily affect this power calculation.</p>
+<ul class="simple">
+<li><p>N = 24,</p></li>
+<li><p>Repeated measures = 4</p></li>
+<li><p>Groups = 2</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>2 * 4 * 24
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+192
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from pymer4 import Lmer, simulate_lmm
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from local_MERF import MERF
+# from jmspack.ml_utils import optimize_model
+# from jmspack.utils import silence_stdout
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
+from matplotlib.lines import Line2D
+import session_info
+import pingouin as pg
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>session_info.show(write_req_file=False)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<details>
+<summary>Click to view session information</summary>
+<pre>
+-----
+local_MERF          NA
+matplotlib          3.5.1
+numpy               1.22.3
+pandas              1.1.5
+pingouin            0.5.2
+pymer4              0.7.8
+seaborn             0.11.2
+session_info        1.0.0
+sklearn             1.0.2
+-----
+</pre>
+<details>
+<summary>Click to view modules imported as dependencies</summary>
+<pre>
+PIL                         9.0.1
+asttokens                   NA
+backcall                    0.2.0
+beta_ufunc                  NA
+binom_ufunc                 NA
+brotli                      NA
+certifi                     2022.06.15
+cffi                        1.15.0
+charset_normalizer          2.0.4
+cycler                      0.10.0
+cython_runtime              NA
+dateutil                    2.8.2
+debugpy                     1.5.1
+decorator                   5.1.1
+deepdish                    0.3.7
+defusedxml                  0.7.1
+entrypoints                 0.4
+executing                   0.8.3
+idna                        3.3
+ipykernel                   6.9.1
+ipython_genutils            0.2.0
+jedi                        0.18.1
+jinja2                      3.0.3
+joblib                      1.1.0
+jupyter_server              1.13.5
+kiwisolver                  1.4.2
+littleutils                 NA
+markupsafe                  2.0.1
+matplotlib_inline           NA
+mkl                         2.4.0
+mpl_toolkits                NA
+nbinom_ufunc                NA
+numexpr                     2.8.1
+outdated                    0.2.1
+packaging                   21.3
+pandas_flavor               NA
+parso                       0.8.3
+patsy                       0.5.2
+pexpect                     4.8.0
+pickleshare                 0.7.5
+pkg_resources               NA
+prompt_toolkit              3.0.20
+ptyprocess                  0.7.0
+pure_eval                   0.2.2
+pydev_ipython               NA
+pydevconsole                NA
+pydevd                      2.6.0
+pydevd_concurrency_analyser NA
+pydevd_file_utils           NA
+pydevd_plugins              NA
+pydevd_tracing              NA
+pygments                    2.11.2
+pyparsing                   3.0.4
+pytz                        2021.3
+requests                    2.27.1
+rpy2                        3.4.5
+scipy                       1.7.3
+setuptools                  61.2.0
+six                         1.16.0
+socks                       1.7.1
+stack_data                  0.2.0
+statsmodels                 0.13.2
+tables                      3.6.1
+tabulate                    0.8.9
+threadpoolctl               2.2.0
+tornado                     6.1
+traitlets                   5.1.1
+typing_extensions           NA
+tzlocal                     NA
+urllib3                     1.26.9
+wcwidth                     0.2.5
+xarray                      0.20.1
+zmq                         22.3.0
+</pre>
+</details> <!-- seems like this ends pre, so might as well be explicit -->
+<pre>
+-----
+IPython             8.3.0
+jupyter_client      7.2.2
+jupyter_core        4.10.0
+jupyterlab          3.3.2
+notebook            6.4.11
+-----
+Python 3.9.12 (main, Jun  1 2022, 11:38:51) [GCC 7.5.0]
+Linux-5.4.0-1080-aws-x86_64-with-glibc2.27
+-----
+Session information updated at 2022-06-28 13:57
+</pre>
+</details></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>if &quot;jms_style_sheet&quot; in plt.style.available:
+    plt.style.use(&quot;jms_style_sheet&quot;)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>number_observations = 4 # amount of observations per group (i.e. user_id)
+number_predictors = 5
+number_groups = 40 # amount of groups (i.e. user_id)
+
+df, blups, coefficient = simulate_lmm(num_obs=number_observations,
+    num_coef=number_predictors,
+    num_grps=number_groups,
+    coef_vals=None,
+    corrs=None,
+    grp_sigmas=0.25,
+    mus=0.0,
+    sigmas=1.0,
+    noise_params=(0, 2),
+    family=&#39;gaussian&#39;,
+    seed=69420)
+
+df = (df.assign(m00_name= lambda x: np.tile([&quot;m00&quot;, &quot;m03&quot;, &quot;m06&quot;, &quot;m09&quot;], number_groups))
+      .assign(diagnosis = np.repeat([0, 1], int(df.shape[0]/2)))
+      .rename(columns={&quot;Group&quot;: &quot;user_id&quot;}, inplace=False)
+      .assign(user_id=lambda x: x[&quot;user_id&quot;].astype(int))
+      )
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>coefficient
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([0.53109224, 0.35676397, 0.51311614, 0.32530468, 0.45724967,
+       0.01407327])
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>display(df.head()), df.shape
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>DV</th>
+      <th>IV1</th>
+      <th>IV2</th>
+      <th>IV3</th>
+      <th>IV4</th>
+      <th>IV5</th>
+      <th>user_id</th>
+      <th>m00_name</th>
+      <th>diagnosis</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>-0.176284</td>
+      <td>-0.631297</td>
+      <td>-1.545416</td>
+      <td>0.551350</td>
+      <td>0.465951</td>
+      <td>1.825298</td>
+      <td>1</td>
+      <td>m00</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>5.297406</td>
+      <td>-0.953989</td>
+      <td>1.068107</td>
+      <td>-0.375538</td>
+      <td>-0.775013</td>
+      <td>1.870303</td>
+      <td>1</td>
+      <td>m03</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.694839</td>
+      <td>-1.404839</td>
+      <td>2.835310</td>
+      <td>-0.413594</td>
+      <td>-1.253913</td>
+      <td>-1.061551</td>
+      <td>1</td>
+      <td>m06</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2.079718</td>
+      <td>-0.369729</td>
+      <td>-0.014778</td>
+      <td>0.255887</td>
+      <td>-0.590729</td>
+      <td>0.608351</td>
+      <td>1</td>
+      <td>m09</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>3.061051</td>
+      <td>0.047046</td>
+      <td>0.517653</td>
+      <td>1.551487</td>
+      <td>0.089594</td>
+      <td>1.478871</td>
+      <td>2</td>
+      <td>m00</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(None, (160, 9))
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>predictor_list = df.filter(regex=&quot;IV&quot;).columns.tolist()[-2:4]
+
+# df[predictor_list] = df[predictor_list].mask(np.random.random(df[predictor_list].shape) &lt; .025)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>target = &quot;DV&quot;
+grp = &quot;user_id&quot;
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_ = sns.lmplot(data=df, x=target, y=predictor_list[0], hue=&quot;diagnosis&quot;, height=7, aspect=2)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/vitarenal_synthetic_MERF_13_0.png" src="_images/vitarenal_synthetic_MERF_13_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_ = plt.figure(figsize=(20, 7))
+_ = sns.lineplot(data=df.assign(user_id=lambda x: x[grp].astype(&quot;category&quot;)), x=target, y=predictor_list[0], hue=grp, legend=False)
+_ = sns.scatterplot(data=df.assign(user_id=lambda x: x[grp].astype(&quot;category&quot;)), x=target, y=predictor_list[0], hue=grp, legend=False)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/vitarenal_synthetic_MERF_14_0.png" src="_images/vitarenal_synthetic_MERF_14_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_ = sns.lmplot(data=df, x=target, y=predictor_list[0], hue=&quot;m00_name&quot;, height=7, aspect=2)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/vitarenal_synthetic_MERF_15_0.png" src="_images/vitarenal_synthetic_MERF_15_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_ = plt.figure(figsize=(10, 7))
+_ = sns.boxplot(data=df, x=&quot;m00_name&quot;, y=target)
+_ = sns.lineplot(data=df.assign(user_id=lambda x: x[grp].astype(&quot;category&quot;)), x=&quot;m00_name&quot;, y=target, hue=grp, legend=False)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/vitarenal_synthetic_MERF_16_0.png" src="_images/vitarenal_synthetic_MERF_16_0.png" />
+</div>
+</div>
+<section id="Specify-the-predictor-list,-target-and-group">
+<h3>Specify the predictor list, target and group<a class="headerlink" href="#Specify-the-predictor-list,-target-and-group" title="Permalink to this heading">¶</a></h3>
+<section id="Create-train_test-and-hold-out-users">
+<h4>Create train_test and hold out users<a class="headerlink" href="#Create-train_test-and-hold-out-users" title="Permalink to this heading">¶</a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>hold_out_users = df.sample(n=5, random_state=69420)[&quot;user_id&quot;].unique().tolist()
+train_test_users = df[~df[&#39;user_id&#39;].isin(hold_out_users)][&quot;user_id&quot;].unique().tolist()
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>X = df.loc[df[&quot;user_id&quot;].isin(train_test_users), predictor_list + [grp]]
+y = df.loc[df[&quot;user_id&quot;].isin(train_test_users), target]
+
+hold_X = df.loc[df[&quot;user_id&quot;].isin(hold_out_users), predictor_list + [grp]]
+hold_y = df.loc[df[&quot;user_id&quot;].isin(hold_out_users), target]
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>X_train = X.sample(frac=0.8, random_state=42)
+X_test = X.drop(X_train.index, axis=0)
+y_train = y.loc[X_train.index]
+y_test = y.drop(X_train.index, axis=0)
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(X_train.shape); print(y_train.shape); print(X_test.shape); print(y_test.shape); print(hold_X.shape); print(hold_y.shape)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(112, 2)
+(112,)
+(28, 2)
+(28,)
+(20, 2)
+(20,)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_ = sns.displot(x=y_train, bins=10)
+_ = plt.title(&quot;Target balance for modelling - in training set&quot;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/vitarenal_synthetic_MERF_23_0.png" src="_images/vitarenal_synthetic_MERF_23_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_ = plt.figure(figsize=(7,3))
+_ = sns.countplot(x=X_train[grp])
+_ = plt.title(&quot;Group balance for modelling - in training set&quot;)
+cutoff = 4
+_ = plt.axhline(cutoff, c=&quot;red&quot;,ls=&quot;--&quot;, label=f&quot;Row Count Cutoff == {cutoff}&quot;)
+_ = plt.legend()
+_ = plt.xticks(rotation=90)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/vitarenal_synthetic_MERF_24_0.png" src="_images/vitarenal_synthetic_MERF_24_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># _ = plt.figure(figsize=(30,5))
+_ = sns.displot(x=y_test, bins=10)
+_ = plt.title(&quot;Target balance for modelling - in test set&quot;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/vitarenal_synthetic_MERF_25_0.png" src="_images/vitarenal_synthetic_MERF_25_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_ = plt.figure(figsize=(7,3))
+_ = sns.countplot(x=X_test[grp])
+_ = plt.title(&quot;Group balance for modelling - in test set&quot;)
+cutoff = 4
+_ = plt.axhline(cutoff, c=&quot;red&quot;, ls=&quot;--&quot;, label=f&quot;Row Count Cutoff == {cutoff}&quot;)
+_ = plt.legend()
+_ = plt.xticks(rotation=90)
+_ = plt.show()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/vitarenal_synthetic_MERF_26_0.png" src="_images/vitarenal_synthetic_MERF_26_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>tmp = X_train.apply(lambda x: x.nunique()).sort_values()
+tmp
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+user_id     35
+IV4        112
+dtype: int64
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>n_it = 100 # specify the maximum amount of iterations you would like the MERF to use during expectation–maximization (EM)
+rf_params={&quot;n_estimators&quot;: 300, &quot;criterion&quot;: &quot;squared_error&quot;, &quot;max_features&quot;: &quot;sqrt&quot;, &quot;oob_score&quot;: True}
+merf = MERF(n_estimators=300, gll_early_stop_threshold=0.001, max_iterations=n_it, rf_params=rf_params)
+_ = merf.fit(X=X_train, Z=np.ones((len(X_train), 1)), clusters=X_train[grp], y=y_train)
+y_pred = merf.predict(X=X_test, Z=np.ones((len(X_test), 1)), clusters=X_test[grp])
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pred_test_df=pd.DataFrame({&quot;y_pred&quot;: y_pred, target: y_test, &#39;user_id&#39;: X_test[&#39;user_id&#39;]})
+# pred_test_df = pred_test_df.groupby(&#39;user_id&#39;).mean()
+merf_cors = pg.corr(pred_test_df[&quot;y_pred&quot;], pred_test_df[target])
+merf_cors
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>n</th>
+      <th>r</th>
+      <th>CI95%</th>
+      <th>p-val</th>
+      <th>BF10</th>
+      <th>power</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>pearson</th>
+      <td>28</td>
+      <td>0.378408</td>
+      <td>[0.01, 0.66]</td>
+      <td>0.047079</td>
+      <td>1.533</td>
+      <td>0.524503</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from matplotlib.lines import Line2D
+plt.style.use(&#39;seaborn-whitegrid&#39;)
+legend_elements = [Line2D([0], [0], marker=&quot;&quot;, color=&quot;k&quot;, label=f&quot;r-value = {np.round(merf_cors[&#39;r&#39;].iat[0],2)}&quot;, linestyle=&quot;none&quot;, ),
+                  Line2D([0], [0], marker=&quot;&quot;, color=&quot;k&quot;, label=f&quot;p-value = {np.round(merf_cors[&#39;p-val&#39;].iat[0],2)}&quot;, linestyle=&quot;none&quot;, )]
+fig, ax = plt.subplots(figsize=(7,5))
+sns.regplot(x=target, y=&quot;y_pred&quot;, data=pred_test_df).\
+set_title(f&quot;Scatter plot of the prediction from MERF vs the {target}\n with regression line fitted&quot;)
+_ = ax.legend(handles=legend_elements)
+plt.xlabel(target)
+plt.ylabel(f&quot;Prediction from MERF&quot;)
+plt.show()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/vitarenal_synthetic_MERF_30_0.png" src="_images/vitarenal_synthetic_MERF_30_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>user_id_min=pred_test_df.index.min()
+user_id_max=pred_test_df.index.max()
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>df_test=pred_test_df
+# plt.style.use(&#39;ggplot&#39;)
+plt.figure(figsize=(10,5))
+plt.title(f&quot;Merf (Test set) | RMSE = {round(np.sqrt(mean_squared_error(df_test[&#39;y_pred&#39;], df_test[target])),2)} | bias Error = { round(np.mean(df_test[&#39;y_pred&#39;] - df_test[target]), 2)} &quot;)
+plt.stem(df_test.index, df_test[&#39;y_pred&#39;] - df_test[target], use_line_collection=True, linefmt=&#39;grey&#39;, markerfmt=&#39;D&#39;)
+plt.hlines(y=round(np.sqrt(mean_squared_error(df_test[&#39;y_pred&#39;], df_test[target])),2), colors=&#39;b&#39;, linestyles=&#39;-.&#39;, label=&#39;+ RMSE&#39;, xmin = user_id_min, xmax = user_id_max)
+plt.hlines(y=round(-np.sqrt(mean_squared_error(df_test[&#39;y_pred&#39;], df_test[target])),2), colors=&#39;b&#39;, linestyles=&#39;-.&#39;, label=&#39;- RMSE&#39;, xmin = user_id_min, xmax = user_id_max)
+plt.xticks(rotation=90, ticks=df_test.index)
+plt.ylabel(f&quot;&#39;Error = y_predicted - {target}&#39;&quot;)
+# plt.ylim([-.5,.6])
+plt.legend()
+_ = plt.show()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/vitarenal_synthetic_MERF_32_0.png" src="_images/vitarenal_synthetic_MERF_32_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="Hold-out-set">
+<h3>Hold out set<a class="headerlink" href="#Hold-out-set" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>y_pred = merf.predict(X=hold_X, Z=np.ones((len(hold_X), 1)), clusters=hold_X[grp])
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pred_test_df=pd.DataFrame({&quot;y_pred&quot;: y_pred, target: hold_y, grp: hold_X[grp]})
+# pred_test_df = pred_test_df.groupby(grp).mean()
+merf_cors = pg.corr(pred_test_df[&quot;y_pred&quot;], pred_test_df[target])
+merf_cors
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>n</th>
+      <th>r</th>
+      <th>CI95%</th>
+      <th>p-val</th>
+      <th>BF10</th>
+      <th>power</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>pearson</th>
+      <td>20</td>
+      <td>0.511412</td>
+      <td>[0.09, 0.78]</td>
+      <td>0.021181</td>
+      <td>3.31</td>
+      <td>0.661748</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plt.style.use(&#39;seaborn-whitegrid&#39;)
+legend_elements = [Line2D([0], [0], marker=&quot;&quot;, color=&quot;k&quot;, label=f&quot;r-value = {np.round(merf_cors[&#39;r&#39;].iat[0],2)}&quot;, linestyle=&quot;none&quot;, ),
+                  Line2D([0], [0], marker=&quot;&quot;, color=&quot;k&quot;, label=f&quot;p-value = {np.round(merf_cors[&#39;p-val&#39;].iat[0],2)}&quot;, linestyle=&quot;none&quot;, )]
+fig, ax = plt.subplots(figsize=(7,5))
+sns.regplot(x=target, y=&quot;y_pred&quot;, data=pred_test_df).\
+set_title(f&quot;Scatter plot of the prediction from MERF vs the {target}\n with regression line fitted&quot;)
+_ = ax.legend(handles=legend_elements)
+plt.xlabel(target)
+plt.ylabel(f&quot;Prediction from MERF&quot;)
+plt.show()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/vitarenal_synthetic_MERF_36_0.png" src="_images/vitarenal_synthetic_MERF_36_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>user_id_min=pred_test_df.index.min()
+user_id_max=pred_test_df.index.max()
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>df_test=pred_test_df
+# plt.style.use(&#39;ggplot&#39;)
+plt.figure(figsize=(10, 5))
+plt.title(f&quot;Merf (Hold out set) | RMSE = {round(np.sqrt(mean_squared_error(df_test[&#39;y_pred&#39;], df_test[target])),2)} | bias Error = { round(np.mean(df_test[&#39;y_pred&#39;] - df_test[target]), 2)} &quot;)
+plt.stem(df_test.index, df_test[&#39;y_pred&#39;] - df_test[target], use_line_collection=True, linefmt=&#39;grey&#39;, markerfmt=&#39;D&#39;)
+plt.hlines(y=round(np.sqrt(mean_squared_error(df_test[&#39;y_pred&#39;], df_test[target])),2), colors=&#39;b&#39;, linestyles=&#39;-.&#39;, label=&#39;+ RMSE&#39;, xmin = user_id_min, xmax = user_id_max)
+plt.hlines(y=round(-np.sqrt(mean_squared_error(df_test[&#39;y_pred&#39;], df_test[target])),2), colors=&#39;b&#39;, linestyles=&#39;-.&#39;, label=&#39;- RMSE&#39;, xmin = user_id_min, xmax = user_id_max)
+plt.xticks(rotation=90, ticks=df_test.index)
+plt.ylabel(f&quot;&#39;Error = y_predicted - {target}&#39;&quot;)
+# plt.ylim([-.5,.6])
+plt.legend()
+_ = plt.show()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/vitarenal_synthetic_MERF_38_0.png" src="_images/vitarenal_synthetic_MERF_38_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+<div id="sourcelink">
+  <a href="_sources/vitarenal_synthetic_MERF.nblink.txt"
+     rel="nofollow">Source</a>
+</div>
+      
+    </p>
+    <p>
+        &copy; Copyright 2022, James Twose.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
